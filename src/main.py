@@ -1,6 +1,7 @@
-from fastapi import FastAPI, APIRouter, Query
+from fastapi import FastAPI, APIRouter, Query, Depends
 from typing import Annotated
 from models.starship import Starship
+from auth import validate_api_key
 
 app = FastAPI()
 router = APIRouter(prefix="/api/v1")
@@ -10,6 +11,7 @@ router = APIRouter(prefix="/api/v1")
     "/starship-readiness",
     summary="Get a list of starships based on search parameters",
     tags=["starships"],
+    dependencies=[Depends(validate_api_key)],
 )
 async def get_starship_readiness(
     num_passengers: Annotated[int, Query(ge=0)],

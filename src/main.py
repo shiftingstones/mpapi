@@ -22,7 +22,7 @@ async def get_starship_readiness(
 
     - **num_passengers**: the number of passengers to transport, not including crew
     - **hyperdrive_required**: if true, only include starships with a hyperdrive rating of 2 or higher
-    - **cargo_weight**: the weight of any additonal cargo to transport
+    - **cargo_weight**: the weight in kilograms of any additonal cargo to transport
 
     HTTP response status codes:
 

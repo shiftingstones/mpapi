@@ -4,9 +4,9 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from asgi_correlation_id import CorrelationIdMiddleware
-from routers.starship import router as starship_router
-from dependencies.correlation import CORRELATION_HEADER
-from core.logging import log_requests_middleware
+from mpapi.routers.starship import router as starship_router
+from mpapi.dependencies.correlation import CORRELATION_HEADER
+from mpapi.core.logging import log_requests_middleware
 
 # Endpoints are defined in separate modules under the routers package
 app = FastAPI()

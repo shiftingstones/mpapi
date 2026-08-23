@@ -2,9 +2,9 @@
 
 from fastapi import APIRouter, Depends, Query
 from typing import Annotated
-from dependencies.auth import validate_api_key
-from dependencies.correlation import validate_correlation_id, CORRELATION_HEADER
-from models.starship import Starship
+from mpapi.dependencies.auth import validate_api_key
+from mpapi.dependencies.correlation import validate_correlation_id, CORRELATION_HEADER
+from mpapi.models.starship import Starship
 
 router = APIRouter(prefix="/api/v1")
 

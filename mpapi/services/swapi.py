@@ -12,8 +12,8 @@ Typical usage example:
 import anyio, anyio.to_thread
 import requests
 
-from models.starship import Starship
-from core.utils import parse_int, parse_float
+from mpapi.models.starship import Starship
+from mpapi.core.utils import parse_int, parse_float
 
 SWAPI_STARSHIPS_URL = "https://swapi.info/api/starships"
 

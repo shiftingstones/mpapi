@@ -13,7 +13,7 @@ import anyio, anyio.to_thread
 import requests
 
 from models.starship import Starship
-from utils import parse_int, parse_float
+from core.utils import parse_int, parse_float
 
 SWAPI_STARSHIPS_URL = "https://swapi.info/api/starships"
 

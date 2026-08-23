@@ -4,7 +4,7 @@ from fastapi.security import APIKeyHeader
 import os
 import pwdlib
 
-api_key_header = APIKeyHeader(name="X-Api-Key")
+api_key_header = APIKeyHeader(name="x-api-key")
 
 
 def validate_api_key(api_key: str = Depends(api_key_header)) -> None:

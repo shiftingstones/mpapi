@@ -3,16 +3,32 @@
 from fastapi import APIRouter, Depends, Query
 from typing import Annotated
 from dependencies.auth import validate_api_key
+from dependencies.correlation import validate_correlation_id, CORRELATION_HEADER
 from models.starship import Starship
 
 router = APIRouter(prefix="/api/v1")
+
+HTTP_RESPONSE_HEADERS = {
+    "headers": {
+        CORRELATION_HEADER: {
+            "description": "A correlation/tracking ID to be sent with the next request from this client",
+            "schema": {"type": "string"},
+        }
+    }
+}
 
 
 @router.get(
     "/starship-readiness",
     summary="Get a list of starships based on search parameters",
     tags=["starships"],
-    dependencies=[Depends(validate_api_key)],
+    dependencies=[Depends(validate_api_key), Depends(validate_correlation_id)],
+    responses={
+        200: HTTP_RESPONSE_HEADERS,
+        204: HTTP_RESPONSE_HEADERS,
+        401: HTTP_RESPONSE_HEADERS,
+        422: HTTP_RESPONSE_HEADERS,
+    },
 )
 async def get_starship_readiness(
     num_passengers: Annotated[int, Query(alias="num-passengers", ge=0)],

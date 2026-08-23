@@ -3,6 +3,7 @@ name = "mpapi"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "asgi-correlation-id>=5.0.1",
     "fastapi[standard]>=0.141.1",
     "pwdlib[argon2]>=0.3.1",
     "requests>=2.34.2",

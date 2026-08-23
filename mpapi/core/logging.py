@@ -1,5 +1,6 @@
 """A module that defines the logging configuration used throughout the app."""
 
+import os
 import logging
 from logging.handlers import RotatingFileHandler
 from fastapi import Request
@@ -7,7 +8,10 @@ from asgi_correlation_id.log_filters import CorrelationIdFilter
 from pythonjsonlogger.json import JsonFormatter
 from http import HTTPStatus
 
-MPAPI_LOG_FILE = "/var/log/mpapi.log"
+# Save the log file to /var/log in docker, otherwise to the working directory for local testing
+MPAPI_LOG_FILE = (
+    "/var/log/mpapi.log" if os.access("/var/log/", os.W_OK) else "mpapi.log"
+)
 
 # Configure the root logger
 logger = logging.getLogger()

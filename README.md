@@ -1,5 +1,5 @@
 # Star Wars Mission Planning API
-An API to determine what starships in the Star Wars universe support your mission parameters.  The MPAPI project is a FastAPI service exposing one authenticated endpoint at `/api/v1/starship-readiness`.  The endpoint retrieves all starships that can accommodate the specified passenger capacity, hyperdrive requirements, and any additional cargo weight.
+An API to determine what starships in the Star Wars universe support your mission parameters.  The MPAPI project is a FastAPI service exposing one authenticated endpoint at `/api/v1/starship-readiness`.  The endpoint retrieves all starships that can accommodate the specified number of passengers, hyperdrive requirements, and any additional cargo weight.
 
 ## Setup and Test
 

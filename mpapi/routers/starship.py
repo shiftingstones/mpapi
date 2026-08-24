@@ -1,6 +1,6 @@
 """Module defining API endpoints for starships."""
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response, status
 from typing import Annotated
 from mpapi.dependencies.auth import validate_api_key
 from mpapi.dependencies.correlation import validate_correlation_id, CORRELATION_HEADER
@@ -32,6 +32,7 @@ HTTP_RESPONSE_HEADERS = {
     },
 )
 async def get_starship_readiness(
+    response: Response,
     num_passengers: Annotated[int, Query(alias="num-passengers", ge=0)],
     hyperdrive_required: Annotated[bool, Query(alias="hyperdrive-required")],
     cargo_weight: Annotated[int, Query(alias="cargo-weight", ge=0)] = 0,
@@ -53,6 +54,15 @@ async def get_starship_readiness(
     - **500 Internal Server Error**: an unexpected error occurred
     """
 
-    return await find_available_starships(
+    matching_starships = await find_available_starships(
         num_passengers, hyperdrive_required, cargo_weight
     )
+
+    # If no matches, return a 204 status code
+    response.status_code = (
+        status.HTTP_200_OK
+        if len(matching_starships) > 0
+        else status.HTTP_204_NO_CONTENT
+    )
+
+    return matching_starships

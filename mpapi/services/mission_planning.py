@@ -31,4 +31,5 @@ async def find_available_starships(
         ):
             matching_starships.append(starship)
 
+    # No need to sort matches since orignal list was already sorted
     return matching_starships

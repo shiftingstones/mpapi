@@ -2,7 +2,13 @@ services:
   app:
     build:
       context: .
+      target: dev
     environment:
       MPAPI_KEY_HASH: '$$argon2id$$v=19$$m=65536,t=3,p=4$$/WXPTY3c/F3KFvJxFew73Q$$OVr6Q0qiNzZm1s0tMvhsqXZ0P30Qx7nbVO2h9hzf7ko'
     ports:
       - '8000:8000'
+
+  test:
+    build:
+      context: .
+      target: test

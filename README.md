@@ -20,7 +20,7 @@ An API to determine what starships in the Star Wars universe support your missio
   docker compose up app
   ```
 
-- Open a new terminal and test with curl.  The API key is `hansolofalcon`.
+- Open a new terminal and test with curl.  The API authentication key is `hansolofalcon`.
   ```
   curl -X 'GET' \
     'http://localhost:8000/api/v1/starship-readiness?num-passengers=100&hyperdrive-required=true&cargo-weight=0' \

@@ -1,4 +1,10 @@
-"""A module that defines the logging configuration used throughout the app."""
+"""A module that defines the logging configuration used throughout the app.
+
+Log files are saved to /var/log in docker, otherwise to the working directory
+for local testing.  We configure two JSON log files -- first the root logger for
+application logs and then a second logger to track all API access requests.  Both
+loggers also dump the same messages to the console window.
+"""
 
 import os
 import logging
@@ -8,37 +14,72 @@ from asgi_correlation_id.log_filters import CorrelationIdFilter
 from pythonjsonlogger.json import JsonFormatter
 from http import HTTPStatus
 
-# Save the log file to /var/log in docker, otherwise to the working directory for local testing
-MPAPI_LOG_FILE = (
-    "/var/log/mpapi.log" if os.access("/var/log/", os.W_OK) else "mpapi.log"
+# Begin configuration of the application (root) logger
+MPAPI_APP_LOG_FILE = (
+    "/var/log/mpapi_app.log" if os.access("/var/log/", os.W_OK) else "mpapi_app.log"
 )
 
 # Configure the root logger
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.DEBUG)
 
 # Log the first 8 characters of the correlation ID with every request
-correlation_log_filter = CorrelationIdFilter(uuid_length=8, default_value="-")
-logger.addFilter(correlation_log_filter)
+root_correlation_filter = CorrelationIdFilter(uuid_length=8, default_value="-")
+root_logger.addFilter(root_correlation_filter)
 
 # The handler and formatter to show output in the console window
-console_log_handler = logging.StreamHandler()
-console_log_formatter = logging.Formatter(
-    fmt="%(levelname)s:\t\b%(asctime)s %(name)s [%(correlation_id)s] %(message)s"
+root_console_handler = logging.StreamHandler()
+root_console_formatter = logging.Formatter(
+    fmt="%(levelname)s:\t\b%(asctime)s %(name)s [%(correlation_id)s]  %(message)s"
 )
-console_log_handler.setFormatter(console_log_formatter)
-logger.addHandler(console_log_handler)
+root_console_handler.setFormatter(root_console_formatter)
+root_logger.addHandler(root_console_handler)
 
-# The handle and formatter to log messages to a JSON file
-file_log_handler = RotatingFileHandler(
-    MPAPI_LOG_FILE, maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
+# The handler and formatter to log messages to a JSON file
+root_file_handler = RotatingFileHandler(
+    MPAPI_APP_LOG_FILE, maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
 )
-file_log_formatter = JsonFormatter(
+root_file_formatter = JsonFormatter(
     fmt=["asctime", "correlation_id", "levelname", "name", "message"],
     rename_fields={"asctime": "timestamp", "levelname": "level", "name": "logger"},
 )
-file_log_handler.setFormatter(file_log_formatter)
-logger.addHandler(file_log_handler)
+root_file_handler.setFormatter(root_file_formatter)
+root_logger.addHandler(root_file_handler)
+
+# Begin configuration of the API access logger
+MPAPI_ACCESS_LOG_FILE = (
+    "/var/log/mpapi_access.log"
+    if os.access("/var/log/", os.W_OK)
+    else "mpapi_access.log"
+)
+
+# Configure the access logger.  The access logs do NOT propagate up to the root logger.
+access_logger = logging.getLogger("mpapi.access")
+access_logger.setLevel(logging.DEBUG)
+access_logger.propagate = False
+
+# Log the first 8 characters of the correlation ID with every request
+access_correlation_filter = CorrelationIdFilter(uuid_length=8, default_value="-")
+access_logger.addFilter(access_correlation_filter)
+
+# The handler and formatter to show output in the console window
+access_console_handler = logging.StreamHandler()
+access_console_formatter = logging.Formatter(
+    fmt="%(levelname)s:\t\b%(asctime)s [%(correlation_id)s] %(message)s"
+)
+access_console_handler.setFormatter(access_console_formatter)
+access_logger.addHandler(access_console_handler)
+
+# The handler and formatter to log messages to a JSON file
+access_file_handler = RotatingFileHandler(
+    MPAPI_ACCESS_LOG_FILE, maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
+)
+access_file_formatter = JsonFormatter(
+    fmt=["asctime", "correlation_id", "levelname", "message"],
+    rename_fields={"asctime": "timestamp", "levelname": "level"},
+)
+access_file_handler.setFormatter(access_file_formatter)
+access_logger.addHandler(access_file_handler)
 
 
 async def log_requests_middleware(request: Request, call_next):
@@ -55,6 +96,23 @@ async def log_requests_middleware(request: Request, call_next):
     client_port = request.client.port if request.client else ""
     client = f"{client_host}:{client_port}"
 
-    logger.info(f"{client} '{request.method} {request.url}' {response_status}")
+    access_logger.info(f"{client} '{request.method} {request.url}' {response_status}")
 
     return response
+
+
+# Begin configuration of the urllib3 logger
+urllib3_logger = logging.getLogger("urllib3.connectionpool")
+urllib3_logger.setLevel(logging.DEBUG)
+
+# Without this correlation filter, urllib3 throws exceptions on DEBUG
+urllib3_correlation_filter = CorrelationIdFilter(uuid_length=8, default_value="-")
+urllib3_logger.addFilter(urllib3_correlation_filter)
+
+
+# urllib3 is chatty, filter out DEBUG messages from the console but keep them in the application log
+def urllib3_filter(record: logging.LogRecord) -> bool:
+    return True if record.levelno >= logging.INFO else False
+
+
+root_console_handler.addFilter(urllib3_filter)

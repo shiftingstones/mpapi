@@ -5,6 +5,7 @@ from typing import Annotated
 from mpapi.dependencies.auth import validate_api_key
 from mpapi.dependencies.correlation import validate_correlation_id, CORRELATION_HEADER
 from mpapi.models.starship import Starship
+from mpapi.services.mission_planning import find_available_starships
 
 router = APIRouter(prefix="/api/v1")
 
@@ -52,4 +53,6 @@ async def get_starship_readiness(
     - **500 Internal Server Error**: an unexpected error occurred
     """
 
-    return []
+    return await find_available_starships(
+        num_passengers, hyperdrive_required, cargo_weight
+    )

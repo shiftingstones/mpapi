@@ -22,7 +22,7 @@ An API to determine what starships in the Star Wars universe support your missio
 
 - Open a new terminal and test with curl.  The API authentication key is `hansolofalcon`.
   ```
-  curl -X 'GET' \
+  curl -D - -X 'GET' \
     'http://localhost:8000/api/v1/starship-readiness?num-passengers=100&hyperdrive-required=true&cargo-weight=0' \
     -H 'accept: application/json' \
     -H 'x-api-key: hansolofalcon'

@@ -9,7 +9,7 @@ from mpapi.dependencies.correlation import CORRELATION_HEADER
 from mpapi.core.logging import log_requests_middleware
 
 # Endpoints are defined in separate modules under the routers package
-app = FastAPI()
+app = FastAPI(title="Star Wars Mission Planning API", version="1.0.0")
 app.include_router(starship_router)
 
 # Add middleware to log all requests

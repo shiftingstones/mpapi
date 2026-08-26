@@ -47,7 +47,7 @@ async def get_starship_readiness(
 
     HTTP response status codes:
 
-    - **200 OK**: one or more starships found
+    - **200 Successful Response**: one or more starships found
     - **204 No Content**: no starships found
     - **401 Unauthorized**: API key is not valid
     - **422 Unprocessable Content**: invalid search parameter specified

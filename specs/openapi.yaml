@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: Star Wars Mission Planning API
+  version: 0.1.0
+servers:
+  - url: /api/v1
+paths:
+  /starship-readiness:
+    get:
+      tags:
+        - starships
+      summary: Get a list of starships based on search parameters
+      description: >-
+        Return a list of starships that can accommodate the specified search
+        parameters. The list of starships will be sorted by starship name in
+        ascending order.
+
+
+        - **num-passengers**: the number of passengers to transport, not
+        including crew
+
+        - **hyperdrive-required**: if true, only include starships with a
+        hyperdrive rating of 2 or higher
+
+        - **cargo-weight**: the weight in kilograms of any additonal cargo to
+        transport
+
+
+        HTTP response status codes:
+
+
+        - **200 Successful Response**: one or more starships found
+
+        - **204 No Content**: no starships found
+
+        - **401 Unauthorized**: API key is not valid
+
+        - **422 Unprocessable Content**: invalid search parameter specified
+
+        - **500 Internal Server Error**: an unexpected error occurred
+      parameters:
+        - name: num-passengers
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+        - name: hyperdrive-required
+          in: query
+          required: true
+          schema:
+            type: boolean
+        - name: cargo-weight
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: x-correlation-id
+          in: header
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Starship"
+          headers:
+            x-correlation-id:
+              description:
+                A correlation/tracking ID to be sent with the next request from
+                this client
+              schema:
+                type: string
+        "204":
+          headers:
+            x-correlation-id:
+              description:
+                A correlation/tracking ID to be sent with the next request from
+                this client
+              schema:
+                type: string
+          description: No Content
+        "401":
+          headers:
+            x-correlation-id:
+              description:
+                A correlation/tracking ID to be sent with the next request from
+                this client
+              schema:
+                type: string
+          description: Unauthorized
+        "422":
+          headers:
+            x-correlation-id:
+              description:
+                A correlation/tracking ID to be sent with the next request from
+                this client
+              schema:
+                type: string
+          description: Unprocessable Content
+components:
+  schemas:
+    Starship:
+      type: object
+      properties:
+        name:
+          type: string
+        model:
+          type: string
+        class:
+          type: string
+        cargo_capacity:
+          type: integer
+        max_crew:
+          type: integer
+        max_passengers:
+          type: integer
+        hyperdrive_rating:
+          type: number
+      required:
+        - name
+        - model
+        - class
+        - cargo_capacity
+        - max_crew
+        - max_passengers
+        - hyperdrive_rating
+  securitySchemes:
+    APIKeyHeader:
+      type: apiKey
+      in: header
+      name: x-api-key
+security:
+  - APIKeyHeader: []
